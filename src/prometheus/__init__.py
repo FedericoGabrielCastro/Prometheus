@@ -2,6 +2,7 @@
 
 from prometheus.model import Model
 from prometheus.runner import AgentRunner, ToolExecutor
+from prometheus.tools import ToolRegistry, ToolSpec, tool
 from prometheus.types import (
     AssistantReply,
     Message,
@@ -22,7 +23,10 @@ __all__ = [
     "StopReason",
     "ToolCall",
     "ToolExecutor",
+    "ToolRegistry",
+    "ToolSpec",
     "Turn",
     "__version__",
+    "tool",
 ]
 __version__ = "0.1.0"

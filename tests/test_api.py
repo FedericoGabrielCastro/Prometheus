@@ -8,8 +8,11 @@ from prometheus import (
     StopReason,
     ToolCall,
     ToolExecutor,
+    ToolRegistry,
+    ToolSpec,
     Turn,
     __version__,
+    tool,
 )
 
 
@@ -24,4 +27,7 @@ def test_public_exports() -> None:
     assert StopReason
     assert ToolCall
     assert ToolExecutor
+    assert ToolRegistry
+    assert ToolSpec
     assert Turn
+    assert tool

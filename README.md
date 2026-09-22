@@ -84,6 +84,26 @@ Stop conditions:
 
 If the model asks for a tool, the runner executes it (or records an error) and feeds the result back as a `tool` message. Tool exceptions never kill the loop.
 
+## Tools
+
+Register a function. Prometheus builds the JSON schema from type hints, `Annotated` metadata, and the docstring.
+
+```python
+from prometheus import AgentRunner, ToolRegistry, tool
+
+@tool
+def spark(n: int = 1) -> str:
+    """Make n sparks."""
+    return "ember" * n
+
+tools = ToolRegistry([spark])
+result = AgentRunner(your_model, tools=tools).run("ignite")
+```
+
+The runner passes `tools.schemas()` into every `model.complete(...)` call so the model can see what it is allowed to use. Unknown names, missing arguments, and extra arguments come back as `error:` tool messages — they do not crash the loop.
+
+Built-in tools (filesystem, shell, HTTP) are next.
+
 ## Architecture
 
 ```mermaid
@@ -111,6 +131,8 @@ The runner owns the loop. Tools never talk to the model. The model never touches
 Prometheus/
 ├── src/prometheus/
 │   ├── runner.py       # Agent loop, turn state, stop conditions
+│   ├── tools.py        # @tool, registry, JSON schemas
+│   ├── schema.py       # Type hints → JSON Schema
 │   ├── model.py        # Model protocol
 │   └── types.py        # Messages, turns, stop reasons
 ├── tests/
@@ -124,7 +146,7 @@ Built as a sequence of small, reviewable PRs:
 
 - [x] **0 — Bootstrap** — Poetry project, layout, tests, this README
 - [x] **1 — Runner** — Agent loop, turn state, stop conditions
-- [ ] **2 — Tools** — Tool protocol, registry, schema generation
+- [x] **2 — Tools** — Tool protocol, registry, schema generation
 - [ ] **3 — Built-ins** — First-party tools the runner can actually use
 - [ ] **4 — CLI** — `prometheus run` from the terminal
 
