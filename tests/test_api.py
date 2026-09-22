@@ -11,7 +11,9 @@ from prometheus import (
     ToolRegistry,
     ToolSpec,
     Turn,
+    Workspace,
     __version__,
+    builtin_tools,
     tool,
 )
 
@@ -30,4 +32,6 @@ def test_public_exports() -> None:
     assert ToolRegistry
     assert ToolSpec
     assert Turn
+    assert Workspace
+    assert builtin_tools
     assert tool

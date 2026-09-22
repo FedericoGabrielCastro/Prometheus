@@ -102,7 +102,24 @@ result = AgentRunner(your_model, tools=tools).run("ignite")
 
 The runner passes `tools.schemas()` into every `model.complete(...)` call so the model can see what it is allowed to use. Unknown names, missing arguments, and extra arguments come back as `error:` tool messages — they do not crash the loop.
 
-Built-in tools (filesystem, shell, HTTP) are next.
+## Built-ins
+
+Filesystem paths that resolve outside the workspace are rejected. `run_command` starts with `cwd` at the workspace root. HTTP is http(s) only. Output is clipped so a huge file cannot flood the model.
+
+```python
+from prometheus import AgentRunner, builtin_tools
+
+tools = builtin_tools(".", shell=True, http=True)
+result = AgentRunner(your_model, tools=tools).run("what files are here?")
+```
+
+| Tool | Role |
+| --- | --- |
+| `read_file` / `write_file` / `list_dir` | UTF-8 files under the workspace |
+| `run_command` | Shell command with `cwd` at the workspace root |
+| `http_get` | Fetch an `http` or `https` URL |
+
+Disable a group when you do not want it: `builtin_tools(root, shell=False, http=False)`.
 
 ## Architecture
 
@@ -132,6 +149,7 @@ Prometheus/
 ├── src/prometheus/
 │   ├── runner.py       # Agent loop, turn state, stop conditions
 │   ├── tools.py        # @tool, registry, JSON schemas
+│   ├── builtins.py     # Filesystem, shell, HTTP
 │   ├── schema.py       # Type hints → JSON Schema
 │   ├── model.py        # Model protocol
 │   └── types.py        # Messages, turns, stop reasons
@@ -147,7 +165,7 @@ Built as a sequence of small, reviewable PRs:
 - [x] **0 — Bootstrap** — Poetry project, layout, tests, this README
 - [x] **1 — Runner** — Agent loop, turn state, stop conditions
 - [x] **2 — Tools** — Tool protocol, registry, schema generation
-- [ ] **3 — Built-ins** — First-party tools the runner can actually use
+- [x] **3 — Built-ins** — First-party tools the runner can actually use
 - [ ] **4 — CLI** — `prometheus run` from the terminal
 
 ## Requirements
