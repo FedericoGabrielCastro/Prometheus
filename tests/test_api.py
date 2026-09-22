@@ -15,6 +15,8 @@ from prometheus import (
     __version__,
     builtin_tools,
     tool,
+    EchoModel,
+    OpenAIModel,
 )
 
 
@@ -22,8 +24,10 @@ def test_public_exports() -> None:
     assert __version__ == "0.1.0"
     assert AgentRunner
     assert AssistantReply
+    assert EchoModel
     assert Message
     assert Model
+    assert OpenAIModel
     assert Role
     assert RunResult
     assert StopReason

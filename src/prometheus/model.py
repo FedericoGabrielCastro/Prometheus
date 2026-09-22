@@ -1,7 +1,7 @@
 """Model boundary for the runner.
 
 The runner talks to a model through this protocol. Concrete providers
-(OpenAI, Anthropic, local) land in later PRs.
+live in `prometheus.providers` (`EchoModel`, `OpenAIModel`).
 """
 
 from __future__ import annotations
