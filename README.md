@@ -56,6 +56,34 @@ poetry install
 poetry run pytest
 ```
 
+## The loop
+
+Plug in any model that implements `complete(messages) -> AssistantReply`. The runner does the rest.
+
+```python
+from prometheus import AgentRunner, AssistantReply
+
+class Echo:
+    def complete(self, messages):
+        last = messages[-1].content
+        return AssistantReply(content=f"heard: {last}")
+
+result = AgentRunner(Echo(), system_prompt="keep it short").run("steal the fire")
+
+print(result.output)        # heard: steal the fire
+print(result.stop_reason)   # completed
+print(len(result.turns))    # 1
+```
+
+Stop conditions:
+
+| Reason | When |
+| --- | --- |
+| `completed` | The model replies with no tool calls |
+| `max_turns` | The loop hits the turn budget (default 16) |
+
+If the model asks for a tool, the runner executes it (or records an error) and feeds the result back as a `tool` message. Tool exceptions never kill the loop.
+
 ## Architecture
 
 ```mermaid
@@ -81,9 +109,12 @@ The runner owns the loop. Tools never talk to the model. The model never touches
 
 ```text
 Prometheus/
-├── src/prometheus/     # Agent runner + tools
-├── tests/              # Pytest suite
-├── pyproject.toml      # Poetry project
+├── src/prometheus/
+│   ├── runner.py       # Agent loop, turn state, stop conditions
+│   ├── model.py        # Model protocol
+│   └── types.py        # Messages, turns, stop reasons
+├── tests/
+├── pyproject.toml
 └── README.md
 ```
 
@@ -92,7 +123,7 @@ Prometheus/
 Built as a sequence of small, reviewable PRs:
 
 - [x] **0 — Bootstrap** — Poetry project, layout, tests, this README
-- [ ] **1 — Runner** — Agent loop, turn state, stop conditions
+- [x] **1 — Runner** — Agent loop, turn state, stop conditions
 - [ ] **2 — Tools** — Tool protocol, registry, schema generation
 - [ ] **3 — Built-ins** — First-party tools the runner can actually use
 - [ ] **4 — CLI** — `prometheus run` from the terminal
