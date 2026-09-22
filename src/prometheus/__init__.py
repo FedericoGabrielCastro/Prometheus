@@ -2,6 +2,7 @@
 
 from prometheus.builtins import Workspace, builtin_tools
 from prometheus.model import Model
+from prometheus.providers import EchoModel, OpenAIModel
 from prometheus.runner import AgentRunner, ToolExecutor
 from prometheus.tools import ToolRegistry, ToolSpec, tool
 from prometheus.types import (
@@ -30,6 +31,8 @@ __all__ = [
     "Workspace",
     "__version__",
     "builtin_tools",
+    "EchoModel",
+    "OpenAIModel",
     "tool",
 ]
 __version__ = "0.1.0"

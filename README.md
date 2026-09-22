@@ -52,6 +52,12 @@ cd Prometheus
 # Install (Python 3.12+)
 poetry install
 
+# Echo loop (no API key)
+poetry run prometheus run --model echo "steal the fire"
+
+# Real model (needs OPENAI_API_KEY)
+poetry run prometheus run "what files are here?"
+
 # Run tests
 poetry run pytest
 ```
@@ -121,6 +127,25 @@ result = AgentRunner(your_model, tools=tools).run("what files are here?")
 
 Disable a group when you do not want it: `builtin_tools(root, shell=False, http=False)`.
 
+## CLI
+
+```bash
+prometheus run "steal the fire"
+prometheus run --model echo "no cloud required"
+prometheus run --root . --no-shell --no-http -v "what files are here?"
+```
+
+| Flag | Meaning |
+| --- | --- |
+| `--model echo \| openai` | Local echo, or OpenAI-compatible chat. Default is `openai` when `OPENAI_API_KEY` is set. |
+| `--model-name` | Remote model id (default `gpt-4o-mini`) |
+| `--base-url` | OpenAI-compatible API root |
+| `--root` | Workspace for built-in tools |
+| `--no-filesystem` / `--no-shell` / `--no-http` | Disable a built-in group |
+| `--max-turns` / `--system` / `-v` | Turn budget, system prompt, trace tool hops |
+
+Compatible servers (Ollama, vLLM, LiteLLM, …) work via `--base-url`.
+
 ## Architecture
 
 ```mermaid
@@ -147,6 +172,8 @@ The runner owns the loop. Tools never talk to the model. The model never touches
 ```text
 Prometheus/
 ├── src/prometheus/
+│   ├── cli.py          # `prometheus run`
+│   ├── providers.py    # Echo + OpenAI-compatible models
 │   ├── runner.py       # Agent loop, turn state, stop conditions
 │   ├── tools.py        # @tool, registry, JSON schemas
 │   ├── builtins.py     # Filesystem, shell, HTTP
@@ -166,7 +193,7 @@ Built as a sequence of small, reviewable PRs:
 - [x] **1 — Runner** — Agent loop, turn state, stop conditions
 - [x] **2 — Tools** — Tool protocol, registry, schema generation
 - [x] **3 — Built-ins** — First-party tools the runner can actually use
-- [ ] **4 — CLI** — `prometheus run` from the terminal
+- [x] **4 — CLI** — `prometheus run` from the terminal
 
 ## Requirements
 
