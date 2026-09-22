@@ -1,0 +1,39 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Poetry
+poetry.toml
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Tests / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+*.swp
