@@ -8,28 +8,7 @@ from prometheus import (
     StopReason,
     ToolCall,
 )
-
-
-class ScriptedModel:
-    def __init__(self, replies: list[AssistantReply]) -> None:
-        self._replies = replies
-        self.seen: list[tuple[Message, ...]] = []
-
-    def complete(self, messages: tuple[Message, ...]) -> AssistantReply:
-        self.seen.append(messages)
-        return self._replies[len(self.seen) - 1]
-
-
-class MapExecutor:
-    def __init__(self, results: dict[str, str] | None = None) -> None:
-        self.results = results or {}
-        self.calls: list[ToolCall] = []
-
-    def execute(self, call: ToolCall) -> str:
-        self.calls.append(call)
-        if call.name not in self.results:
-            raise KeyError(call.name)
-        return self.results[call.name]
+from tests.fakes import MapExecutor, ScriptedModel
 
 
 def test_completes_on_first_reply_without_tools() -> None:

@@ -21,11 +21,7 @@ from prometheus.types import (
 
 
 class ToolExecutor(Protocol):
-    """Minimal hook the runner uses to dispatch a tool call.
-
-    The registry and schema generation live in the tools PR. This protocol
-    is enough for the loop to stay honest.
-    """
+    """Dispatch a tool call. `ToolRegistry` is the usual implementation."""
 
     def execute(self, call: ToolCall) -> str:
         """Run one tool call and return a string result for the model."""
@@ -51,8 +47,9 @@ class AgentRunner:
         messages = self._seed_messages(prompt)
         turns: list[Turn] = []
 
+        schemas = self._tool_schemas()
         for index in range(self._max_turns):
-            reply = self._model.complete(tuple(messages))
+            reply = self._model.complete(tuple(messages), tools=schemas)
             assistant = _assistant_message(reply)
             messages.append(assistant)
 
@@ -105,6 +102,14 @@ class AgentRunner:
             return self._tools.execute(call)
         except Exception as exc:
             return f"error: {type(exc).__name__}: {exc}"
+
+    def _tool_schemas(self) -> tuple[dict, ...] | None:
+        if self._tools is None:
+            return None
+        schemas = getattr(self._tools, "schemas", None)
+        if schemas is None:
+            return None
+        return tuple(schemas() if callable(schemas) else schemas)
 
 
 def _assistant_message(reply: AssistantReply) -> Message:
